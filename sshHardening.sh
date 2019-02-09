@@ -30,8 +30,7 @@ fi
 #### Functions
 
 function disable_passwd() {
-    # REVIEW id_rsa_2
-    if [[ -e ~/.ssh/id_rsa_2 ]]; then
+    if [[ -e ~/.ssh/id_rsa ]]; then
         echo -e "$green Keys are already present. Skipping key generation! $clearColor"
     else
         echo -e "$cyan Generating new Keys... $clearColor"
@@ -49,7 +48,6 @@ function disable_passwd() {
     echo ""
     read -n 1 -s
 
-    ## TODO -i -r and add $sshConfigPath instead of $sshConfigPath
     if ! sed -i -r '/PasswordAuthentication/ s/^#/ /; s/(PasswordAuthentication).*$/\1 no/' $sshConfigPath; then
         echo -e "$redHigh Not able to edit ssh config file. $clearColor"
         exit 1
@@ -60,10 +58,7 @@ function disable_passwd() {
 }
 
 function change_port () {
-    echo -e "$cyan Enter new port: "
-    read port
-# TODO add $sshConfigPath instead of $sshConfigPath
-    if ! sed -i -r '/^#   Port/ s/^#/ /; s/(Port).*$/\1 4444/' $sshConfigPath; then
+    if ! sed -i -r '/^#   Port/ s/^#/ /; s/(Port).*$/\1 '"$port"'/' $sshConfigPath; then
         echo -e "$redHigh Not able to edit ssh config file. $clearColor"
         exit 1
     else
@@ -100,7 +95,7 @@ cp $sshConfigPath $sshConfigPath.$(date $timestamp)
 echo -n -e "$cyan Do you want to disable password for SSH login? [Yes] $clearColor"
 read choice
 
-if [[ $choice =~ ^[Yy]$ ]]; then
+if [[ $choice =~ ^[Yy]$ ]]; then # =~ for regex 
     disable_passwd
 fi
 
@@ -111,7 +106,11 @@ echo -n -e "$cyan Do you want to change the default port of SSH? [No] $clearColo
 read choice
 
 if [[ $choice =~ ^[Yy]$ ]]; then
+    echo -e "$cyan Enter new port: "
+    read port
     change_port
+    echo -e "$blueHigh Use following command to login: $clearColor"
+    echo -e "$cyan ssh -p $port $user@$ip"
 fi
 
 choice="n"
