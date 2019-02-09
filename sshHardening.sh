@@ -3,13 +3,8 @@
 Harden SSH security based on https://github.com/w4rb0y/walkthrough/blob/master/sshEssesntials.md
 Author: Nitish Jadia
 Date: 2019-02-05
-Version: v0.1.0 beta; There maybe numerous bug. Please open a issue or a pull request for the same.
+Version: v0.1.0 beta; There maybe numerous bug. Please open an issue or a pull request.
 '
-
-#Blue hightlight = \e[44m
-# Cyan - \e[96m
-# Clear - \e[0m
-# exit code : 127 command not found
 
 ##### Colors #####
 blueHigh="\e[44m"
@@ -20,7 +15,8 @@ green="\e[32m"
 
 ##### Variables ######
 
-sshConfigPath="/etc/ssh/ssh_config"
+#sshConfigPath="/etc/ssh/ssh_config"
+sshConfigPath="ssh_config"
 user="$(who mom likes | awk '{print $1}')"
 ip="$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')"
 choice="y"
@@ -49,16 +45,12 @@ function disable_passwd() {
     echo -e "$cyan ssh-copy-id $user@$ip $clearColor"
     echo -e "$cyan After that you will be able to login without password. $clearColor"
     echo " "
-    echo -e "$cyan Press [Enter] to continue.... $clearColor"
+    echo -n -e "$cyan Press [Enter] to continue.... $clearColor"
     echo ""
     read -n 1 -s
 
-    ## Creating backup of /etc/ssh/ssh-config file
-    timestamp="+%y%m%d%H%M%S"
-    cp $sshConfigPath $sshConfigPath.$(date $timestamp)
-
-    ## TODO -i -r and add $sshConfigPath instead of ssh_config
-    if ! sed -i -r '/PasswordAuthentication/ s/^#/ /; s/(PasswordAuthentication).*$/\1 no/' ssh_config; then
+    ## TODO -i -r and add $sshConfigPath instead of $sshConfigPath
+    if ! sed -i -r '/PasswordAuthentication/ s/^#/ /; s/(PasswordAuthentication).*$/\1 no/' $sshConfigPath; then
         echo -e "$redHigh Not able to edit ssh config file. $clearColor"
         exit 1
     else
@@ -70,8 +62,8 @@ function disable_passwd() {
 function change_port () {
     echo -e "$cyan Enter new port: "
     read port
-# TODO add $sshConfigPath instead of ssh_config
-    if ! sed -i -r '/^#   Port/ s/^#/ /; s/(Port).*$/\1 4444/' ssh_config; then
+# TODO add $sshConfigPath instead of $sshConfigPath
+    if ! sed -i -r '/^#   Port/ s/^#/ /; s/(Port).*$/\1 4444/' $sshConfigPath; then
         echo -e "$redHigh Not able to edit ssh config file. $clearColor"
         exit 1
     else
@@ -80,11 +72,32 @@ function change_port () {
 
 }
 
+function disable_root () {
+    echo -e "$cyan Disabling root login via SSH. $clearColor"
+    # Checking if PermitRootLogin entry is present in the file or not
+    if grep -q "PermitRootLogin" $sshConfigPath; then # -q = quiet
+        if ! sed -i -r '/PermitRootLogin/ s/^#/ /; s/(PermitRootLogin).*$/\1 no/' $sshConfigPath; then
+            echo -e "$redHigh Not able to edit ssh config file. $clearColor"
+            exit 1
+        else
+            echo -e "$green Disable root login successful. $clearColor"
+        fi
+    else
+        echo "PermitRootLogin no" >> $sshConfigPath
+        echo -e "$green Disable root login successful 2. $clearColor"
+    fi
+}
 
 
 #+++++++++ MAIN +++++++++
 
-echo -e "$cyan Do you want to disable SSH using password? [Yes]$clearColor"
+## Creating backup of /etc/ssh/ssh-config file
+timestamp="+%y%m%d%H%M%S"
+cp $sshConfigPath $sshConfigPath.$(date $timestamp)
+
+# === DISABLE PASSWORD ===
+
+echo -n -e "$cyan Do you want to disable password for SSH login? [Yes] $clearColor"
 read choice
 
 if [[ $choice =~ ^[Yy]$ ]]; then
@@ -93,24 +106,24 @@ fi
 
 
 ### CHANGING DEFAULT PORT
-
-echo -e "$cyan Do you want to change the default port of SSH? [No] $clearColor"
+choice="n"
+echo -n -e "$cyan Do you want to change the default port of SSH? [No] $clearColor"
 read choice
 
 if [[ $choice =~ ^[Yy]$ ]]; then
     change_port
 fi
 
-# echo -e "$cyan Do you want to disable root login? [default Yes] Y/N $clearColor"
+choice="n"
+echo -n -e "$cyan Do you want to disable root login? [No] $clearColor"
+read choice
+if [[ $choice =~ ^[Yy]$ ]]; then
+    disable_root
+fi
+
+# choice="n"
+# echo -n -e "$cyan Restrict SSH access to limited users? [default Yes] Y/N $clearColor"
 # read choice
-
-# if [[ $choice =~ ^[Yy]$ ]]; then
-#     disable_root
-# fi
-
-# echo -e "$cyan Restrict SSH access to limited users? [default Yes] Y/N $clearColor"
-# read choice
-
 # if [[ $choice =~ ^[Yy]$ ]]; then
 #     user_access
 # fi
