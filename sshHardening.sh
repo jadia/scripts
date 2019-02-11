@@ -3,7 +3,7 @@
 Harden SSH security based on https://github.com/w4rb0y/walkthrough/blob/master/sshEssesntials.md
 Author: Nitish Jadia
 Date: 2019-02-05
-Version: v0.1.0 beta; There maybe numerous bug. Please open an issue or a pull request.
+Version: v1.3 ; There maybe numerous bug. Please open an issue or a pull request.
 '
 
 ##### Colors #####
@@ -15,8 +15,8 @@ green="\e[32m"
 
 ##### Variables ######
 
-#sshConfigPath="/etc/ssh/ssh_config"
-sshConfigPath="ssh_config"
+sshConfigPath="/etc/ssh/ssh_config"
+#sshConfigPath="ssh_config" # to test
 user="$(who mom likes | awk '{print $1}')"
 ip="$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')"
 choice="y"
@@ -34,7 +34,7 @@ function disable_passwd() {
         echo -e "$green Keys are already present. Skipping key generation! $clearColor"
     else
         echo -e "$cyan Generating new Keys... $clearColor"
-        if ! $(ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_2 -q -N ""); then
+        if ! $(ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -q -N ""); then
             echo -e "$redHigh Key generation failed! $clearColor"
             exit 1
         fi
@@ -59,6 +59,7 @@ function disable_passwd() {
 
 function change_port () {
     if ! sed -i -r '/^#   Port/ s/^#/ /; s/(Port).*$/\1 '"$port"'/' $sshConfigPath; then
+        # notice how $port is kept in sed command. 
         echo -e "$redHigh Not able to edit ssh config file. $clearColor"
         exit 1
     else
