@@ -15,7 +15,7 @@ green="\e[32m"
 
 ##### Variables ######
 
-sshConfigPath="/etc/ssh/ssh_config"
+sshConfigPath="/etc/ssh/sshd_config"
 #sshConfigPath="ssh_config" # to test
 user="$(who mom likes | awk '{print $1}')"
 ip="$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')"
