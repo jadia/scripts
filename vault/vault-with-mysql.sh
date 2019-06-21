@@ -10,8 +10,8 @@ Version: v0.1 ; There maybe numerous bug. Please open an issue or a pull request
 # Author: github.com/th3karkota
 
 if [[ "$#" -eq 0 ]]; then
-    echo "Give your website name as argument and password."
-    echo "EX: ./vaultInstall jadia.dev Password@123"
+    echo "Give your website name as argument."
+    echo "EX: ./vaultInstall jadia.dev"
     exit 1
 fi
 
@@ -83,14 +83,15 @@ certbot/certbot certonly \
 --standalone \
 --server https://acme-v02.api.letsencrypt.org/directory \
 --agree-tos \
---email sys@rtcamp.com \
+--email someRandomEmail@yopmail.com \
 --manual-public-ip-logging-ok \
 --no-eff-email \
 --renew-by-default \
 --text -d $1
 
 mkdir -p /home/vault/
-cp /etc/letsencrypt/archive/$1/* /home/vault/
+cp $PWD/certbotFiles/etc/letsencrypt/archive/$1/fullchain*.pem /home/vault/fullchain.pem
+cp $PWD/certbotFiles/etc/letsencrypt/archive/$1/privkey*.pem /home/vault/privkey.pem
 rm -rf vault.zip
 # setting permissions to certificate and keys
 sudo chown --recursive vault:vault /home/vault
@@ -130,4 +131,4 @@ mysql -u root --password="goodwork" -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%
 systemctl restart mysql
 systemctl stop vault && systemctl start vault
 echo
-echo "Done"
+echo "Your mysql root password is -> root:goodwork"
