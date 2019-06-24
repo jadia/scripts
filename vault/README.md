@@ -17,7 +17,7 @@ The script will install and configure vault and MySQL. It also creates new certi
 
 `https://example.com:8200`
 
-P.S. :- https is must. Default database password : `goodwork`
+**P.S.:-** https is must. Default database password : `goodwork`
 
 
 ## 2. Install via Docker
@@ -27,7 +27,13 @@ MySQL service needs to start before vault start. In newer docker-compose api ver
 
 ```bash
 cd vault
+# Generate certificates
+chmod +x generateCert.sh && ./generateCert.sh EXAMPLE.COM
+# Start vault
 docker-compose up -d db && sleep 10 && docker-compose up -d vault
 ```
-
-P.S.:- DB password can be changed by editing `docker-compose` file.
+To stop vault:
+```bash
+docker-comopose down
+```
+**P.S.:**- DB password can be changed by editing `docker-compose` file.
