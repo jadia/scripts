@@ -34,7 +34,7 @@ cd vault
 # Generate certificates
 chmod +x generateCert.sh && ./generateCert.sh EXAMPLE.COM
 # Start vault
-docker-compose up -d db && sleep 10 && docker-compose up -d vault
+docker-compose up -d db && sleep 30 && docker-compose up -d vault
 ```
 To stop vault:
 ```bash

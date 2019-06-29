@@ -7,6 +7,7 @@ tls_key_file  = "/home/vault/privkey.pem"
 api_addr = "localhost:8200"
 
 storage "mysql" {
+address = "db:3306"
 username = "root"
 password = "goodwork"
 }
