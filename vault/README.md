@@ -24,6 +24,10 @@ The script will install and configure vault and MySQL. It also creates new certi
 
 MySQL service needs to start before vault start. In newer docker-compose api versions `conditions` under `depends_on` has been removed, so temporarily we have to depend on below command.
 
+**NOTE**
+
+1. There should be no service running on port 80 before you start the certificate generation. Kill the service on 80 and proceed with the below commands.
+2. `sleep 30` should be increased if your machine is slow. docker-compose v3 api doesn't support feature to wait till `db` is started.
 
 ```bash
 cd vault

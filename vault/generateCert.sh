@@ -18,4 +18,4 @@ certbot/certbot certonly \
 mkdir $PWD/cert
 cp $PWD/certbotFiles/etc/letsencrypt/archive/$1/fullchain*.pem ./cert/fullchain.pem
 cp $PWD/certbotFiles/etc/letsencrypt/archive/$1/privkey*.pem ./cert/privkey.pem
-chmod -r 777 $PWD/cert
+chmod -R 777 $PWD/cert
